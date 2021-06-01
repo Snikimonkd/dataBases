@@ -13,7 +13,7 @@ import (
 	"log"
 	"net/http"
 
-	sw "github.com/Snikimonkd/dataBases/delivery"
+	sw "github.com/Snikimonkd/dataBases/internal"
 )
 
 func main() {
