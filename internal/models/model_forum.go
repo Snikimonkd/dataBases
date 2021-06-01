@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"io"
+)
+
 // Информация о форуме.
 type Forum struct {
 
@@ -17,4 +22,11 @@ type Forum struct {
 
 	// Общее кол-во ветвей обсуждения в данном форуме.
 	Threads float32 `json:"threads,omitempty"`
+}
+
+func ReadForum(body io.ReadCloser) (Forum, error) {
+	var newForum Forum
+	decoder := json.NewDecoder(body)
+	err := decoder.Decode(&newForum)
+	return newForum, err
 }

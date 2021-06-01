@@ -64,6 +64,30 @@ func (a *UserHandler) UserGetOne(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	defer r.Body.Close()
+	newUser, err := models.ReadUser(r.Body)
+	if err != nil {
+		log.Println(err)
+		models.ResponseError(err.Error(), 400, w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	nickname, ok := vars["nickname"]
+	if !ok {
+		err = errors.New("нет никнэйма")
+		log.Println(err)
+		models.ResponseError(err.Error(), 400, w)
+		return
+	}
+	newUser.Nickname = nickname
+
+	res, status, err := a.Usecase.UserUpdate(newUser)
+	if err != nil {
+		log.Println(err)
+		models.ResponseError(err.Error(), status, w)
+		return
+	}
+
+	models.ResponseJson(res, status, w)
 }
