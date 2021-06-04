@@ -55,7 +55,7 @@ func (u *UserRepository) CheckExist(newUser models.User) ([]models.User, error) 
 func (u *UserRepository) CheckUpdateData(newUser models.User) ([]models.User, error) {
 	var users []models.User
 	err := u.DB.Select(&users, CheckUserBeforeUpdateQuery,
-		newUser.Email, newUser.About, newUser.Fullname, newUser.Nickname,
+		newUser.Email, newUser.Nickname,
 	)
 
 	return users, err

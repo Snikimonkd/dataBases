@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"log"
 
 	"github.com/Snikimonkd/dataBases/internal/models"
 	user_repository "github.com/Snikimonkd/dataBases/internal/user/repository"
@@ -72,7 +73,9 @@ func (u *UserUseCase) UserUpdate(newUser models.User) (interface{}, int, error) 
 	if err != nil {
 		return nil, 500, err
 	}
-	if len(users) != 0 {
+	if len(users) > 0 {
+		log.Println(newUser)
+		log.Println(users)
 		return nil, 409, errors.New("new data conflicts with existing data")
 	}
 

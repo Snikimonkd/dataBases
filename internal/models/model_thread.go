@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"io"
 	"time"
 )
 
@@ -8,7 +10,7 @@ import (
 type Thread struct {
 
 	// Идентификатор ветки обсуждения.
-	Id float32 `json:"id,omitempty"`
+	Id int `json:"id,omitempty"`
 
 	// Заголовок ветки обсуждения.
 	Title string `json:"title"`
@@ -30,4 +32,11 @@ type Thread struct {
 
 	// Дата создания ветки на форуме.
 	Created time.Time `json:"created,omitempty"`
+}
+
+func ReadThread(body io.ReadCloser) (Thread, error) {
+	var newThread Thread
+	decoder := json.NewDecoder(body)
+	err := decoder.Decode(&newThread)
+	return newThread, err
 }
