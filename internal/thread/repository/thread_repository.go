@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"log"
-
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -99,22 +97,21 @@ func (f *ThreadRepository) UpdateVote(vote models.Vote, threadId int) error {
 }
 
 func (f *ThreadRepository) ThreadGetPostsFlat(limitInt int, descBool bool, since string, thread models.Thread) ([]models.Post, error) {
-	query := "SELECT * FROM posts WHERE thread = $1"
-	queryLimit := " ORDER BY created, id"
+	query := "SELECT id, author, created, forum, isEdited, message, parent, thread FROM posts WHERE thread = $1"
+	queryLimit := " ORDER BY created"
+
 	if since != "" {
-		query += " AND created"
 		if descBool {
-			query += " <= '" + since + "'"
+			query += " AND id < " + since
 		} else {
-			query += " >= '" + since + "'"
+			query += " AND id > " + since
 		}
 	}
 
-	log.Println(descBool)
 	if descBool {
-		query += queryLimit + " DESC"
+		query += queryLimit + " DESC, id DESC"
 	} else {
-		query += queryLimit + " ASC"
+		query += queryLimit + " ASC, id ASC"
 	}
 	query += " LIMIT $2"
 
@@ -132,22 +129,23 @@ func (f *ThreadRepository) ThreadGetPostsFlat(limitInt int, descBool bool, since
 }
 
 func (f *ThreadRepository) ThreadGetPostsTree(limitInt int, descBool bool, since string, thread models.Thread) ([]models.Post, error) {
-	query := "SELECT * FROM posts WHERE thread = $1"
-	queryLimit := " ORDER BY CASE WHEN parent = 0 THEN id ELSE parent END, parent, id"
+	query := "SELECT id, author, created, forum, message, parent, thread FROM posts WHERE thread = $1"
+	queryLimit := " ORDER BY tree"
 
 	if since != "" {
-		query += " AND created"
 		if descBool {
-			query += " <= '" + since + "'"
+			query += " AND tree < (SELECT tree FROM posts WHERE id = " + since + ")"
 		} else {
-			query += " >= '" + since + "'"
+			query += " AND tree > (SELECT tree FROM posts WHERE id = " + since + ")"
 		}
 	}
+
 	if descBool {
-		query += queryLimit + " DESC"
+		query += queryLimit + " DESC, id DESC"
 	} else {
-		query += queryLimit
+		query += queryLimit + " ASC, id ASC"
 	}
+
 	query += " LIMIT $2"
 
 	var posts []models.Post
@@ -165,36 +163,31 @@ func (f *ThreadRepository) ThreadGetPostsTree(limitInt int, descBool bool, since
 
 func (f *ThreadRepository) ThreadGetPostsParentTree(limitInt int, descBool bool, since string, thread models.Thread) ([]models.Post, error) {
 	query := "(SELECT id FROM posts WHERE thread = $1 AND parent = 0"
-	queryLimit := " ORDER BY CASE WHEN parent = 0 THEN id ELSE parent END, parent, id"
+	queryLimit := " ORDER BY id"
 
 	if since != "" {
-		query += " AND created"
+		query += " AND tree[1]"
 		if descBool {
-			query += " <= '" + since + "'"
+			query += " < " + "(SELECT tree[1] FROM posts where id = " + since + ")" + queryLimit + " DESC"
 		} else {
-			query += " >= '" + since + "'"
+			query += " > " + "(SELECT tree[1] FROM posts where id = " + since + ")" + queryLimit + " ASC"
+		}
+	} else {
+		if descBool {
+			query += queryLimit + " DESC"
+		} else {
+			query += queryLimit + " ASC"
 		}
 	}
-	if descBool {
-		query += queryLimit + " DESC"
-	} else {
-		query += queryLimit
-	}
+
 	query += " LIMIT $2)"
 
-	query = "SELECT * FROM posts where parent IN " + query + " OR id IN" + query
-	if since != "" {
-		query += " AND created"
-		if descBool {
-			query += " <= '" + since + "'"
-		} else {
-			query += " >= '" + since + "'"
-		}
-	}
+	query = "SELECT id, author, created, forum, isEdited, message, parent, thread FROM posts where tree[1] IN " + query
+
 	if descBool {
-		query += queryLimit + " DESC"
+		query += " ORDER BY tree[1] DESC, tree, id"
 	} else {
-		query += queryLimit
+		query += " ORDER BY tree, id"
 	}
 
 	var posts []models.Post

@@ -1,13 +1,13 @@
 CREATE EXTENSION IF NOT EXISTS CITEXT;
 
-CREATE UNLOGGED TABLE IF NOT EXISTS Users (
+CREATE UNLOGGED TABLE IF NOT EXISTS users (
     nickname CITEXT UNIQUE,
     fullname CITEXT,
     about TEXT,
     email CITEXT UNIQUE
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS Forums (
+CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     slug CITEXT UNIQUE,
     posts INT DEFAULT 0,
     threads INT DEFAULT 0,
@@ -16,7 +16,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS Forums (
     FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
 );
 
-CREATE UNLOGGED TABLE IF NOT EXISTS Threads (
+CREATE UNLOGGED TABLE IF NOT EXISTS threads (
     id SERIAL PRIMARY KEY,
     title CITEXT,
     author CITEXT,
@@ -37,7 +37,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     isEdited BOOLEAN DEFAULT FALSE,
     message TEXT,
     parent INT,
-    thread INT
+    thread INT,
+    tree BIGINT[]
 );
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
@@ -90,6 +91,17 @@ CREATE TRIGGER update_votes
     FOR EACH ROW
 EXECUTE PROCEDURE update_votes();
 
-SELECT p2.id as id, p2.parent as parnt FROM posts AS p1 WHERE p1.parent = 0 and p1.thread = $1 LIMIT $2 left join
-    posts as p2 on p1.id = p2.parent or p2.id = p1.id
-    ORDER BY CASE WHEN p2.parent = 0 THEN p2.id ELSE p2.parent END, p2.parent, p2.id
+CREATE FUNCTION make_post_tree()
+    RETURNS TRIGGER AS
+$make_post_tree$
+BEGIN
+    new.tree = (SELECT tree FROM posts WHERE id = new.parent) || new.id;
+    RETURN new;
+END;
+$make_post_tree$ LANGUAGE plpgsql;
+
+CREATE TRIGGER make_post_tree
+    BEFORE INSERT
+    ON posts
+    FOR EACH ROW
+EXECUTE PROCEDURE make_post_tree();
