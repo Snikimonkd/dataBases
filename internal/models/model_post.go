@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+	"io"
 	"time"
 )
 
@@ -8,10 +10,10 @@ import (
 type Post struct {
 
 	// Идентификатор данного сообщения.
-	Id float32 `json:"id,omitempty"`
+	Id int `json:"id,omitempty"`
 
 	// Идентификатор родительского сообщения (0 - корневое сообщение обсуждения).
-	Parent float32 `json:"parent,omitempty"`
+	Parent int `json:"parent,omitempty"`
 
 	// Автор, написавший данное сообщение.
 	Author string `json:"author"`
@@ -26,8 +28,22 @@ type Post struct {
 	Forum string `json:"forum,omitempty"`
 
 	// Идентификатор ветви (id) обсуждения данного сообещния.
-	Thread float32 `json:"thread,omitempty"`
+	Thread int `json:"thread,omitempty"`
 
 	// Дата создания сообщения на форуме.
 	Created time.Time `json:"created,omitempty"`
+}
+
+func ReadPost(body io.ReadCloser) (Post, error) {
+	var newPost Post
+	decoder := json.NewDecoder(body)
+	err := decoder.Decode(&newPost)
+	return newPost, err
+}
+
+func ReadPosts(body io.ReadCloser) ([]Post, error) {
+	var newPosts []Post
+	decoder := json.NewDecoder(body)
+	err := decoder.Decode(&newPosts)
+	return newPosts, err
 }

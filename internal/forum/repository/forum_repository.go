@@ -45,17 +45,33 @@ func (f *ForumRepository) ForumGetOne(slug string) ([]models.Forum, error) {
 }
 
 func (f *ForumRepository) ForumGetThreads(slug string, limitInt int, descBool bool, since string) ([]models.Thread, error) {
-	var threads []models.Thread
-	if !descBool {
-		err := f.DB.Select(&threads, SelectThreadsQueryDesc,
-			slug, limitInt,
-		)
-		return threads, err
-	}
+	query := "SELECT * FROM threads WHERE forum = $1"
+	queryLimit := " ORDER BY created"
 
-	err := f.DB.Select(&threads, SelectThreadsQuery,
+	if since != "" {
+		query += " AND created"
+		if descBool {
+			query += " <= '" + since + "'"
+		} else {
+			query += " >= '" + since + "'"
+		}
+	}
+	if descBool {
+		query += queryLimit + " DESC"
+	} else {
+		query += queryLimit
+	}
+	query += " LIMIT $2"
+
+	var threads []models.Thread
+
+	err := f.DB.Select(&threads, query,
 		slug, limitInt,
 	)
+
+	if len(threads) == 0 {
+		threads = make([]models.Thread, 0)
+	}
 
 	return threads, err
 }

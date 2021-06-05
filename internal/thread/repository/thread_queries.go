@@ -12,6 +12,14 @@ var SelectThreadWithIdQuery = "SELECT * FROM threads WHERE id = $1"
 
 var SelectThreadWithSlugQuery = "SELECT * FROM threads WHERE slug = $1"
 
+var ThreadVoteQuery = "UPDATE threads SET votes = vote + $1 WHERE id = $2"
+
+var SelectVoteQuery = "SELECT nickname, vote FROM votes WHERE nickname = $1 AND thread_id = $2"
+
+var InsertVoteQuery = "INSERT INTO votes (nickname, thread_id, vote) VALUES ($1, $2, $3)"
+
+var UpdateVoteQuery = "UPDATE votes SET vote = $1 WHERE thread_id = $2 AND nickname = $3"
+
 //-----------
 
 var InsertUserQuery = "INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3, $4)"

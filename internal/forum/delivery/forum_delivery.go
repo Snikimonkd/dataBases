@@ -64,11 +64,13 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	query := r.URL.Query()
+
 	limitInt := 100
 	var err error
-	limit, ok := vars["limit"]
+	limit, ok := query["limit"]
 	if ok {
-		limitInt, err = strconv.Atoi(limit)
+		limitInt, err = strconv.Atoi(limit[0])
 		if err != nil {
 			log.Println(err)
 			models.ResponseError(err.Error(), 404, w)
@@ -76,19 +78,19 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 	}
 
 	descBool := false
-	desc, ok := vars["desc"]
+	desc, ok := query["desc"]
 	if ok {
-		if desc == "true" {
+		if desc[0] == "true" {
 			descBool = true
 		}
 	}
 
-	since, ok := vars["since"]
+	since, ok := query["since"]
 	if !ok {
-		since = ""
+		since = []string{""}
 	}
 
-	res, status, err := a.Usecase.ForumGetThreads(slug, limitInt, descBool, since)
+	res, status, err := a.Usecase.ForumGetThreads(slug, limitInt, descBool, since[0])
 	if err != nil {
 		log.Println(err)
 		models.ResponseError(err.Error(), status, w)

@@ -80,3 +80,109 @@ func (u *ThreadUseCase) ThreadGetOne(slug_or_id string) (interface{}, int, error
 
 	return threads[0], 200, nil
 }
+
+func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (interface{}, int, error) {
+	var threads []models.Thread
+	id, err := strconv.Atoi(slug_or_id)
+	if err == nil {
+		threads, err = u.Repository.ThreadGetOneId(id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 1")
+		}
+	} else {
+		threads, err = u.Repository.ThreadGetOneSlug(slug_or_id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 2")
+		}
+	}
+
+	thread := threads[0]
+
+	lastVotes, err := u.Repository.GetVote(newVote, thread.Id)
+	if err != nil {
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+	}
+	if len(lastVotes) != 0 {
+		if lastVotes[0].Voice == newVote.Voice {
+			return thread, 200, nil
+		}
+		err = u.Repository.UpdateVote(newVote, thread.Id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+
+		thread.Votes += newVote.Voice * 2
+		return thread, 200, nil
+	}
+
+	err = u.Repository.InsertNewVote(newVote, thread.Id)
+	if err != nil {
+		log.Println(err)
+		return nil, 500, nil
+	}
+
+	thread.Votes += newVote.Voice
+	return thread, 200, nil
+}
+
+func (u *ThreadUseCase) ThreadGetPosts(slug_or_id string, limitInt int, descBool bool, since string, sort string) (interface{}, int, error) {
+	var threads []models.Thread
+	id, err := strconv.Atoi(slug_or_id)
+	if err == nil {
+		threads, err = u.Repository.ThreadGetOneId(id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 1")
+		}
+	} else {
+		threads, err = u.Repository.ThreadGetOneSlug(slug_or_id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 2")
+		}
+	}
+
+	thread := threads[0]
+
+	var posts []models.Post
+	switch sort {
+	case "flat":
+		posts, err = u.Repository.ThreadGetPostsFlat(limitInt, descBool, since, thread)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+	case "tree":
+		posts, err = u.Repository.ThreadGetPostsTree(limitInt, descBool, since, thread)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+	case "parent_tree":
+		posts, err = u.Repository.ThreadGetPostsParentTree(limitInt, descBool, since, thread)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+	}
+
+	return posts, 200, nil
+}
