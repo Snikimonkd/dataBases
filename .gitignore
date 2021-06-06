@@ -13,7 +13,5 @@
 tech-db-forum
 technopark-dbms-forum
 report.html
-go.mod
-go.sum
 # Dependency directories (remove the comment below to include it)
 # vendor/

@@ -60,7 +60,6 @@ func (u *ThreadUseCase) ThreadGetOne(slug_or_id string) (interface{}, int, error
 			log.Println(err)
 			return nil, 500, nil
 		}
-
 		if len(threads) == 0 {
 			return nil, 404, errors.New("cant find thread")
 		}
