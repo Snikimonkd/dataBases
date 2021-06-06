@@ -20,6 +20,8 @@ var InsertVoteQuery = "INSERT INTO votes (nickname, thread_id, vote) VALUES ($1,
 
 var UpdateVoteQuery = "UPDATE votes SET vote = $1 WHERE thread_id = $2 AND nickname = $3"
 
+var ThreadUpdateQuery = "UPDATE threads SET message = $1, title = $2 WHERE id = $3"
+
 //-----------
 
 var InsertUserQuery = "INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3, $4)"

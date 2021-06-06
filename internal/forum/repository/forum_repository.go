@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"log"
+
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -74,4 +76,40 @@ func (f *ForumRepository) ForumGetThreads(slug string, limitInt int, descBool bo
 	}
 
 	return threads, err
+}
+
+func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool, since string, forumSlug string) ([]models.User, error) {
+	query := "SELECT u.nickname, u.fullname, u.about, u.email FROM users AS u JOIN forum_participants as f ON f.user_nickname = u.nickname WHERE f.forum = $1"
+	queryLimit := " ORDER BY u.nickname"
+
+	if since != "" {
+		query += " AND f.user_nickname"
+		if descBool {
+			query += " < '" + since + "'"
+		} else {
+			query += " > '" + since + "'"
+		}
+	}
+
+	if descBool {
+		query += queryLimit + " DESC"
+	} else {
+		query += queryLimit
+	}
+
+	query += " LIMIT $2"
+
+	var users []models.User
+
+	log.Println(query)
+
+	err := f.DB.Select(&users, query,
+		slug, limitInt,
+	)
+
+	if len(users) == 0 {
+		users = make([]models.User, 0)
+	}
+
+	return users, err
 }

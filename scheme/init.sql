@@ -96,6 +96,7 @@ CREATE FUNCTION make_post_tree()
 $make_post_tree$
 BEGIN
     new.tree = (SELECT tree FROM posts WHERE id = new.parent) || new.id;
+    UPDATE forums SET posts = posts + 1 WHERE slug = new.forum;
     RETURN new;
 END;
 $make_post_tree$ LANGUAGE plpgsql;
@@ -105,3 +106,46 @@ CREATE TRIGGER make_post_tree
     ON posts
     FOR EACH ROW
 EXECUTE PROCEDURE make_post_tree();
+
+CREATE FUNCTION update_threads()
+    RETURNS TRIGGER AS
+$update_threads$
+BEGIN
+    UPDATE forums SET threads = threads + 1 WHERE slug = new.forum;
+    RETURN new;
+END;
+$update_threads$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_threads
+    BEFORE INSERT
+    ON threads
+    FOR EACH ROW
+EXECUTE PROCEDURE update_threads();
+
+CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
+    forum CITEXT,
+    user_nickname CITEXT
+);
+
+CREATE FUNCTION forum_participant()
+    RETURNS TRIGGER AS
+$forum_participant$
+BEGIN
+    INSERT INTO forum_participants (user_nickname, forum)
+    VALUES (new.author, new.forum)
+    ON CONFLICT DO NOTHING;
+    RETURN new;
+END;
+$forum_participant$ LANGUAGE plpgsql;
+
+CREATE TRIGGER forum_participant_thread
+    AFTER INSERT
+    ON threads
+    FOR EACH ROW
+EXECUTE PROCEDURE forum_participant();
+
+CREATE TRIGGER forum_participant_post
+    AFTER INSERT
+    ON posts
+    FOR EACH ROW
+EXECUTE PROCEDURE forum_participant();

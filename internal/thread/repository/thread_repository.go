@@ -202,3 +202,11 @@ func (f *ThreadRepository) ThreadGetPostsParentTree(limitInt int, descBool bool,
 
 	return posts, err
 }
+
+func (f *ThreadRepository) ThreadUpdate(thread models.Thread) error {
+	_, err := f.DB.Exec(ThreadUpdateQuery,
+		thread.Message, thread.Title, thread.Id,
+	)
+
+	return err
+}

@@ -186,3 +186,51 @@ func (u *ThreadUseCase) ThreadGetPosts(slug_or_id string, limitInt int, descBool
 
 	return posts, 200, nil
 }
+
+func (u *ThreadUseCase) ThreadUpdate(slug_or_id string, newThread models.Thread) (interface{}, int, error) {
+	var threads []models.Thread
+	id, err := strconv.Atoi(slug_or_id)
+	if err == nil {
+		threads, err = u.Repository.ThreadGetOneId(id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 1")
+		}
+	} else {
+		threads, err = u.Repository.ThreadGetOneSlug(slug_or_id)
+		if err != nil {
+			log.Println(err)
+			return nil, 500, nil
+		}
+		if len(threads) == 0 {
+			return nil, 404, errors.New("cant find thread 2")
+		}
+	}
+
+	thread := threads[0]
+
+	thread = u.ChangeThread(newThread, thread)
+
+	err = u.Repository.ThreadUpdate(thread)
+	if err != nil {
+		log.Println(err)
+		return nil, 500, nil
+	}
+
+	return thread, 200, nil
+}
+
+func (u *ThreadUseCase) ChangeThread(newThread models.Thread, oldThread models.Thread) models.Thread {
+	if newThread.Message != "" {
+		oldThread.Message = newThread.Message
+	}
+
+	if newThread.Title != "" {
+		oldThread.Title = newThread.Title
+	}
+
+	return oldThread
+}

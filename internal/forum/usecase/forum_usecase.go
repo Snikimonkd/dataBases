@@ -67,3 +67,22 @@ func (u *ForumUseCase) ForumGetThreads(slug string, limitInt int, descBool bool,
 
 	return threads, 200, err
 }
+
+func (u *ForumUseCase) ForumGetUsers(slug string, limitInt int, descBool bool, since string) (interface{}, int, error) {
+	var newForum models.Forum
+	newForum.Slug = slug
+	forums, err := u.Repository.CheckForums(newForum)
+	if err != nil {
+		return nil, 500, err
+	}
+	if len(forums) == 0 {
+		return nil, 404, errors.New("can`t find forum")
+	}
+
+	users, err := u.Repository.ForumGetUsers(slug, limitInt, descBool, since, slug)
+	if err != nil {
+		return nil, 500, err
+	}
+
+	return users, 200, err
+}
