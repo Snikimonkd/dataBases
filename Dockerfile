@@ -4,7 +4,7 @@ ADD . /opt/app
 WORKDIR /opt/app
 RUN go build ./main.go
 
-FROM ubuntu:20.04 AS release
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV PGVER 12
