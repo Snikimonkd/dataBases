@@ -38,7 +38,7 @@ func (a *PostHandler) PostGetOne(w http.ResponseWriter, r *http.Request) {
 		related = []string{""}
 	}
 
-	res, status, err := a.Usecase.PostGetOne(idInt, related)
+	res, status, err := a.Usecase.PostGetOne(idInt, related[0])
 	if err != nil {
 		log.Println(err)
 		models.ResponseError(err.Error(), status, w)

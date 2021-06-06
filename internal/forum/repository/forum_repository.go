@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"log"
+	"errors"
 
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -101,8 +101,6 @@ func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool
 
 	var users []models.User
 
-	log.Println(query)
-
 	err := f.DB.Select(&users, query,
 		slug, limitInt,
 	)
@@ -112,4 +110,17 @@ func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool
 	}
 
 	return users, err
+}
+
+func (f *ForumRepository) GetStatus() (int, error) {
+	var ret []int
+	err := f.DB.Select(&ret, GetStatusQuery)
+	if err != nil {
+		return -1, err
+	}
+	if len(ret) == 0 {
+		return -1, errors.New("nothing in return")
+	}
+
+	return ret[0], nil
 }

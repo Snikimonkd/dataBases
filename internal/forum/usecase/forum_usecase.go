@@ -86,3 +86,7 @@ func (u *ForumUseCase) ForumGetUsers(slug string, limitInt int, descBool bool, s
 
 	return users, 200, err
 }
+
+func (u *ForumUseCase) GetStatus() (int, error) {
+	return u.Repository.GetStatus()
+}

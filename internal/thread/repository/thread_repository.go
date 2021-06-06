@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -18,10 +20,10 @@ func (f *ThreadRepository) CheckForum(newThread models.Thread) ([]models.Forum, 
 	return forums, err
 }
 
-func (f *ThreadRepository) CheckUser(newThread models.Thread) ([]models.User, error) {
+func (f *ThreadRepository) CheckUser(nickname string) ([]models.User, error) {
 	var users []models.User
 	err := f.DB.Select(&users, CheckUserExistQuery,
-		newThread.Author,
+		nickname,
 	)
 
 	return users, err
@@ -209,4 +211,17 @@ func (f *ThreadRepository) ThreadUpdate(thread models.Thread) error {
 	)
 
 	return err
+}
+
+func (f *ThreadRepository) GetStatus() (int, error) {
+	var ret []int
+	err := f.DB.Select(&ret, GetStatusQuery)
+	if err != nil {
+		return -1, err
+	}
+	if len(ret) == 0 {
+		return -1, errors.New("nothing in return")
+	}
+
+	return ret[0], nil
 }

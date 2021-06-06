@@ -1,6 +1,10 @@
 package repository
 
 import (
+	"errors"
+	"fmt"
+	"time"
+
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -36,13 +40,52 @@ func (f *PostRepository) CheckParents(parent int) ([]int, error) {
 	return threads, err
 }
 
-func (f *PostRepository) PostsCreate(post models.Post) (int, error) {
-	var id int
-	err := f.DB.QueryRow(InsertPostQuery,
-		post.Author, post.Created, post.Forum, post.Message, post.Parent, post.Thread,
-	).Scan(&id)
+func (f *PostRepository) PostsCreate(posts []models.Post, thread models.Thread) ([]models.Post, error) {
+	query := "INSERT INTO posts (author, created, forum, message, parent, thread) VALUES"
+	res := " RETURNING id"
+	var args []interface{}
 
-	return id, err
+	created := time.Now()
+
+	for i, post := range posts {
+		query += fmt.Sprintf(
+			" ($%d, $%d, $%d, $%d, $%d, $%d),",
+			i*6+1, i*6+2, i*6+3, i*6+4, i*6+5, i*6+6,
+		)
+
+		args = append(args, post.Author, created, thread.Forum, post.Message, post.Parent, thread.Id)
+	}
+
+	query = query[:len(query)-1]
+	query += res
+
+	rows, err := f.DB.Queryx(query,
+		args...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	i := 0
+	for rows.Next() {
+		err := rows.Scan(&posts[i].Id)
+		if err != nil {
+			return nil, err
+		}
+
+		posts[i].Forum = thread.Forum
+		posts[i].Thread = thread.Id
+		posts[i].Created = created
+
+		i++
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return posts, nil
 }
 
 func (f *PostRepository) CheckUsers(nickname string) ([]models.User, error) {
@@ -90,17 +133,21 @@ func (f *PostRepository) PostGetOneThread(post models.Post) ([]models.Thread, er
 	return threads, err
 }
 
-func (f *PostRepository) PostUpdate(post models.Post) (models.Post, error) {
-	var newPost models.Post
-	err := f.DB.QueryRow(PostUpdateQuery, post.Message, post.Id).Scan(
-		&newPost.Id,
-		&newPost.Parent,
-		&newPost.Author,
-		&newPost.Message,
-		&newPost.IsEdited,
-		&newPost.Forum,
-		&newPost.Thread,
-		&newPost.Created)
+func (f *PostRepository) PostUpdate(post models.Post) error {
+	_, err := f.DB.Exec(PostUpdateQuery, post.Message, post.Id)
 
-	return newPost, err
+	return err
+}
+
+func (f *PostRepository) GetStatus() (int, error) {
+	var ret []int
+	err := f.DB.Select(&ret, GetStatusQuery)
+	if err != nil {
+		return -1, err
+	}
+	if len(ret) == 0 {
+		return -1, errors.New("nothing in return")
+	}
+
+	return ret[0], nil
 }

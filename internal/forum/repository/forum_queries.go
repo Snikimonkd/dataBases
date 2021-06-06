@@ -12,6 +12,8 @@ var SelectThreadsQuery = "SELECT * FROM threads WHERE forum = $1 ORDER BY create
 
 var SelectThreadsQueryDesc = "SELECT * FROM threads WHERE forum = $1 ORDER BY created DESC LIMIT $2"
 
+var GetStatusQuery = "SELECT COUNT(*) FROM forums"
+
 //--------------------
 
 var InsertUserQuery = "INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3, $4)"

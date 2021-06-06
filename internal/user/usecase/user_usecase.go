@@ -83,3 +83,11 @@ func (u *UserUseCase) UserUpdate(newUser models.User) (interface{}, int, error) 
 
 	return newUser, 200, nil
 }
+
+func (u *UserUseCase) GetStatus() (int, error) {
+	return u.Repository.GetStatus()
+}
+
+func (u *UserUseCase) Clear() error {
+	return u.Repository.Clear()
+}

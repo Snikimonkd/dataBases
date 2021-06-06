@@ -25,7 +25,7 @@ func (u *ThreadUseCase) ThreadCreate(newThread models.Thread) (interface{}, int,
 
 	newThread.Forum = forums[0].Slug
 
-	users, err := u.Repository.CheckUser(newThread)
+	users, err := u.Repository.CheckUser(newThread.Author)
 	if err != nil {
 		log.Println(err)
 		return nil, 500, nil
@@ -105,6 +105,15 @@ func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (inte
 	}
 
 	thread := threads[0]
+
+	users, err := u.Repository.CheckUser(newVote.Nickname)
+	if err != nil {
+		log.Println(err)
+		return nil, 500, nil
+	}
+	if len(users) == 0 {
+		return nil, 404, errors.New("can`t find user")
+	}
 
 	lastVotes, err := u.Repository.GetVote(newVote, thread.Id)
 	if err != nil {
@@ -233,4 +242,8 @@ func (u *ThreadUseCase) ChangeThread(newThread models.Thread, oldThread models.T
 	}
 
 	return oldThread
+}
+
+func (u *ThreadUseCase) GetStatus() (int, error) {
+	return u.Repository.GetStatus()
 }

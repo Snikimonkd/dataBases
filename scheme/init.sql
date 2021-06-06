@@ -32,6 +32,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS threads (
 CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     id BIGSERIAL PRIMARY KEY,
     author CITEXT,
+    FOREIGN KEY (author) REFERENCES users (nickname) ON DELETE CASCADE,
     created TIMESTAMP WITH TIME ZONE,
     forum CITEXT,
     isEdited BOOLEAN DEFAULT FALSE,
@@ -43,6 +44,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
+    FOREIGN KEY (nickname) REFERENCES users (nickname) ON DELETE CASCADE,
     thread_id INT,
     vote INT
 );
@@ -124,7 +126,8 @@ EXECUTE PROCEDURE update_threads();
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     forum CITEXT,
-    user_nickname CITEXT
+    user_nickname CITEXT,
+    FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
 );
 
 CREATE FUNCTION forum_participant()
@@ -133,7 +136,6 @@ $forum_participant$
 BEGIN
     INSERT INTO forum_participants (user_nickname, forum)
     VALUES (new.author, new.forum)
-    ON CONFLICT DO NOTHING;
     RETURN new;
 END;
 $forum_participant$ LANGUAGE plpgsql;
@@ -149,3 +151,22 @@ CREATE TRIGGER forum_participant_post
     ON posts
     FOR EACH ROW
 EXECUTE PROCEDURE forum_participant();
+
+CREATE INDEX index_users_nickname ON users USING HASH (nickname);
+CREATE INDEX index_users_email ON users USING HASH (email);
+
+CREATE INDEX index_forums_slug ON forums USING HASH (slug);
+CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
+CREATE INDEX index_forums ON forums (slug, title, user_nickname, posts, threads);
+
+CREATE INDEX index_threads_created ON threads (created);
+CREATE INDEX index_threads_slug ON threads USING HASH (slug);
+CREATE INDEX index_threads_id ON threads (id);
+
+CREATE INDEX post_id on posts (id);
+CREATE INDEX post_thread_tree_id on posts (thread, tree, id);
+
+CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
+
+CREATE INDEX index_forum_participants_all ON forum_participants (forum, user_nickname);
+CREATE INDEX index_forum_participants_nickname ON forum_participants (user_nickname);

@@ -22,6 +22,8 @@ var UpdateVoteQuery = "UPDATE votes SET vote = $1 WHERE thread_id = $2 AND nickn
 
 var ThreadUpdateQuery = "UPDATE threads SET message = $1, title = $2 WHERE id = $3"
 
+var GetStatusQuery = "SELECT COUNT(*) FROM threads"
+
 //-----------
 
 var InsertUserQuery = "INSERT INTO users (nickname, fullname, about, email) VALUES ($1, $2, $3, $4)"

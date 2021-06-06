@@ -18,7 +18,9 @@ var PostGetOneForumQuery = "SELECT * FROM forums WHERE slug = $1"
 
 var PostGetOneThreadQuery = "SELECT * FROM threads WHERE id = $1"
 
-var PostUpdateQuery = "UPDATE posts SET message = $1, isEdited = TRUE WHERE id = $2 RETURNING id, parent, author, message, isEdited, forum, thread, created"
+var PostUpdateQuery = "UPDATE posts SET message = $1, isEdited = TRUE WHERE id = $2"
+
+var GetStatusQuery = "SELECT COUNT(*) FROM posts"
 
 //-----------
 

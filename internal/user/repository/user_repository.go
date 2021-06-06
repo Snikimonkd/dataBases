@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
 )
@@ -59,4 +61,23 @@ func (u *UserRepository) CheckUpdateData(newUser models.User) ([]models.User, er
 	)
 
 	return users, err
+}
+
+func (u *UserRepository) GetStatus() (int, error) {
+	var ret []int
+	err := u.DB.Select(&ret, GetStatusQuery)
+	if err != nil {
+		return -1, err
+	}
+	if len(ret) == 0 {
+		return -1, errors.New("nothing in return")
+	}
+
+	return ret[0], nil
+}
+
+func (u *UserRepository) Clear() error {
+	_, err := u.DB.Exec(ClearUsersQuery)
+
+	return err
 }
