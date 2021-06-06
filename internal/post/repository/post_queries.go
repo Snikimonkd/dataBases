@@ -10,6 +10,16 @@ var InsertPostQuery = "INSERT INTO posts (author, created, forum, message, paren
 
 var CheckUserExistQuery = "SELECT * FROM users WHERE nickname = $1"
 
+var PostGetOneQuery = "SELECT id, parent, author, message, isEdited, forum, thread, created FROM posts where id = $1"
+
+var PostGetOneUserQuery = "SELECT * FROM users WHERE nickname = $1"
+
+var PostGetOneForumQuery = "SELECT * FROM forums WHERE slug = $1"
+
+var PostGetOneThreadQuery = "SELECT * FROM threads WHERE id = $1"
+
+var PostUpdateQuery = "UPDATE posts SET message = $1, isEdited = TRUE WHERE id = $2 RETURNING id, parent, author, message, isEdited, forum, thread, created"
+
 //-----------
 
 var CheckForumExistQuery = "SELECT * FROM forums WHERE slug = $1"

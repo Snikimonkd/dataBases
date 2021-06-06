@@ -53,3 +53,54 @@ func (f *PostRepository) CheckUsers(nickname string) ([]models.User, error) {
 
 	return users, err
 }
+
+func (f *PostRepository) PostGetOne(id int) ([]models.Post, error) {
+	var posts []models.Post
+	err := f.DB.Select(&posts, PostGetOneQuery,
+		id,
+	)
+
+	return posts, err
+}
+
+func (f *PostRepository) PostGetOneUser(post models.Post) ([]models.User, error) {
+	var users []models.User
+	err := f.DB.Select(&users, PostGetOneUserQuery,
+		post.Author,
+	)
+
+	return users, err
+}
+
+func (f *PostRepository) PostGetOneForum(post models.Post) ([]models.Forum, error) {
+	var forums []models.Forum
+	err := f.DB.Select(&forums, PostGetOneForumQuery,
+		post.Forum,
+	)
+
+	return forums, err
+}
+
+func (f *PostRepository) PostGetOneThread(post models.Post) ([]models.Thread, error) {
+	var threads []models.Thread
+	err := f.DB.Select(&threads, PostGetOneThreadQuery,
+		post.Thread,
+	)
+
+	return threads, err
+}
+
+func (f *PostRepository) PostUpdate(post models.Post) (models.Post, error) {
+	var newPost models.Post
+	err := f.DB.QueryRow(PostUpdateQuery, post.Message, post.Id).Scan(
+		&newPost.Id,
+		&newPost.Parent,
+		&newPost.Author,
+		&newPost.Message,
+		&newPost.IsEdited,
+		&newPost.Forum,
+		&newPost.Thread,
+		&newPost.Created)
+
+	return newPost, err
+}

@@ -34,6 +34,13 @@ type Post struct {
 	Created time.Time `json:"created,omitempty"`
 }
 
+type PostDetails struct {
+	Post   *Post   `json:"post"`
+	Author *User   `json:"author,omitempty"`
+	Thread *Thread `json:"thread,omitempty"`
+	Forum  *Forum  `json:"forum,omitempty"`
+}
+
 func ReadPost(body io.ReadCloser) (Post, error) {
 	var newPost Post
 	decoder := json.NewDecoder(body)

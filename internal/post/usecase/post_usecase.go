@@ -80,3 +80,69 @@ func (u *PostUseCase) PostsCreate(slug_or_id string, newPosts []models.Post) (in
 
 	return newPosts, 201, nil
 }
+
+func (u *PostUseCase) PostGetOne(id int, related []string) (interface{}, int, error) {
+	posts, err := u.Repository.PostGetOne(id)
+	if err != nil {
+		log.Println(err)
+		return nil, 500, nil
+	}
+	if len(posts) == 0 {
+		return nil, 404, errors.New("cant find post")
+	}
+	post := posts[0]
+
+	res := models.PostDetails{
+		Post: &post,
+	}
+
+	for _, v := range related {
+		switch v {
+		case "user":
+			users, err := u.Repository.PostGetOneUser(post)
+			if err != nil {
+				log.Println(err)
+				return nil, 500, nil
+			}
+			if len(users) == 0 {
+				return nil, 404, errors.New("cant find user")
+			}
+			res.Author = &users[0]
+		case "forum":
+			forums, err := u.Repository.PostGetOneForum(post)
+			if err != nil {
+				log.Println(err)
+				return nil, 500, nil
+			}
+			if len(forums) == 0 {
+				return nil, 404, errors.New("cant find forum")
+			}
+			res.Forum = &forums[0]
+		case "thread":
+			threads, err := u.Repository.PostGetOneThread(post)
+			if err != nil {
+				log.Println(err)
+				return nil, 500, nil
+			}
+			if len(threads) == 0 {
+				return nil, 404, errors.New("cant find forum")
+			}
+			res.Thread = &threads[0]
+		}
+	}
+
+	return res, 200, nil
+}
+
+func (u *PostUseCase) PostUpdate(newPost models.Post) (interface{}, int, error) {
+	post, err := u.Repository.PostUpdate(newPost)
+	if err != nil {
+		log.Println(err)
+		return nil, 500, nil
+	}
+	if post.Id == 0 {
+		return nil, 404, errors.New("cant find psot")
+	}
+
+	return post, 200, nil
+}

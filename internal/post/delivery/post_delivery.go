@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/Snikimonkd/dataBases/internal/post/usecase"
@@ -15,13 +16,73 @@ type PostHandler struct {
 }
 
 func (a *PostHandler) PostGetOne(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		err := errors.New("нет идентификатора")
+		log.Println(err)
+		models.ResponseError(err.Error(), 404, w)
+		return
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		err := errors.New("пользователя с таким id нет")
+		log.Println(err)
+		models.ResponseError(err.Error(), 404, w)
+		return
+	}
+
+	query := r.URL.Query()
+	related, ok := query["related"]
+	if !ok {
+		related = []string{""}
+	}
+
+	res, status, err := a.Usecase.PostGetOne(idInt, related)
+	if err != nil {
+		log.Println(err)
+		models.ResponseError(err.Error(), status, w)
+		return
+	}
+
+	models.ResponseJson(res, status, w)
 }
 
 func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	defer r.Body.Close()
+	newPost, err := models.ReadPost(r.Body)
+	if err != nil {
+		log.Println(err)
+		models.ResponseError(err.Error(), 400, w)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		err := errors.New("нет идентификатора")
+		log.Println(err)
+		models.ResponseError(err.Error(), 404, w)
+		return
+	}
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		err := errors.New("пользователя с таким id нет")
+		log.Println(err)
+		models.ResponseError(err.Error(), 404, w)
+		return
+	}
+
+	newPost.Id = idInt
+
+	res, status, err := a.Usecase.PostUpdate(newPost)
+	if err != nil {
+		log.Println(err)
+		models.ResponseError(err.Error(), status, w)
+		return
+	}
+
+	models.ResponseJson(res, status, w)
 }
 
 func (a *PostHandler) PostsCreate(w http.ResponseWriter, r *http.Request) {
