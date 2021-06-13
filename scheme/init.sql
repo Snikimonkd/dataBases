@@ -126,16 +126,15 @@ EXECUTE PROCEDURE update_threads();
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     forum CITEXT,
-    user_nickname CITEXT,
-    FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
+    user_nickname CITEXT
 );
 
 CREATE FUNCTION forum_participant()
     RETURNS TRIGGER AS
 $forum_participant$
 BEGIN
-    INSERT INTO forum_participants (user_nickname, forum)
-    VALUES (new.author, new.forum)
+    INSERT INTO forum_participants (forum, user_nickname)
+    VALUES (new.forum, new.author);
     RETURN new;
 END;
 $forum_participant$ LANGUAGE plpgsql;

@@ -79,7 +79,7 @@ func (u *ForumUseCase) ForumGetUsers(slug string, limitInt int, descBool bool, s
 		return nil, 404, errors.New("can`t find forum")
 	}
 
-	users, err := u.Repository.ForumGetUsers(slug, limitInt, descBool, since, slug)
+	users, err := u.Repository.ForumGetUsers(slug, limitInt, descBool, since)
 	if err != nil {
 		return nil, 500, err
 	}

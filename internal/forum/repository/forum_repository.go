@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"log"
 
 	"github.com/Snikimonkd/dataBases/internal/models"
 	"github.com/jmoiron/sqlx"
@@ -78,7 +79,7 @@ func (f *ForumRepository) ForumGetThreads(slug string, limitInt int, descBool bo
 	return threads, err
 }
 
-func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool, since string, forumSlug string) ([]models.User, error) {
+func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool, since string) ([]models.User, error) {
 	query := "SELECT DISTINCT u.nickname, u.fullname, u.about, u.email FROM users AS u JOIN forum_participants as f ON f.user_nickname = u.nickname WHERE f.forum = $1"
 	queryLimit := " ORDER BY u.nickname"
 
@@ -104,6 +105,10 @@ func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool
 	err := f.DB.Select(&users, query,
 		slug, limitInt,
 	)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 
 	if len(users) == 0 {
 		users = make([]models.User, 0)
