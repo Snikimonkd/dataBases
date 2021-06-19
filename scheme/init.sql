@@ -162,10 +162,6 @@ CREATE INDEX index_threads_created ON threads (created);
 CREATE INDEX index_threads_slug ON threads USING HASH (slug);
 CREATE INDEX index_threads_id ON threads (id);
 
-CREATE INDEX post_id on posts (id);
-CREATE INDEX post_thread_tree_id on posts (thread, tree, id);
-
 CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
 
-CREATE INDEX index_forum_participants_all ON forum_participants (forum, user_nickname);
-CREATE INDEX index_forum_participants_nickname ON forum_participants (user_nickname);
+CREATE INDEX index_posts_id ON posts (id);
