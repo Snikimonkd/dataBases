@@ -151,17 +151,3 @@ CREATE TRIGGER forum_participant_post
     FOR EACH ROW
 EXECUTE PROCEDURE forum_participant();
 
-CREATE INDEX index_users_nickname ON users USING HASH (nickname);
-CREATE INDEX index_users_email ON users USING HASH (email);
-
-CREATE INDEX index_forums_slug ON forums USING HASH (slug);
-CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
-CREATE INDEX index_forums ON forums (slug, title, user_nickname, posts, threads);
-
-CREATE INDEX index_threads_created ON threads (created);
-CREATE INDEX index_threads_slug ON threads USING HASH (slug);
-CREATE INDEX index_threads_id ON threads (id);
-
-CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
-
-CREATE INDEX index_posts_id ON posts (id);
