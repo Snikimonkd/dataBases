@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Snikimonkd/dataBases/internal/models"
+	"github.com/go-openapi/strfmt"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -45,7 +46,7 @@ func (f *PostRepository) PostsCreate(posts []models.Post, thread models.Thread) 
 	res := " RETURNING id"
 	var args []interface{}
 
-	created := time.Now()
+	created := strfmt.DateTime(time.Now())
 
 	for i, post := range posts {
 		query += fmt.Sprintf(

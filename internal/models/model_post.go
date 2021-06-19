@@ -3,7 +3,8 @@ package models
 import (
 	"encoding/json"
 	"io"
-	"time"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // Сообщение внутри ветки обсуждения на форуме.
@@ -31,7 +32,7 @@ type Post struct {
 	Thread int `json:"thread,omitempty"`
 
 	// Дата создания сообщения на форуме.
-	Created time.Time `json:"created,omitempty"`
+	Created strfmt.DateTime `json:"created,omitempty"`
 }
 
 type PostDetails struct {
