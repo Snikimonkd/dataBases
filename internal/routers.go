@@ -69,7 +69,7 @@ func getPostgres() *sql.DB {
 		panic("can`t ping db" + err.Error())
 	}
 
-	db.SetMaxOpenConns(8)
+	db.SetMaxOpenConns(0)
 
 	return db
 }
