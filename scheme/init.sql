@@ -167,4 +167,4 @@ CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
 CREATE INDEX index_posts_id ON posts (id);
 CREATE INDEX index_posts_thread ON posts (thread);
 CREATE INDEX index_posts_tree ON posts ((tree[1]));
-CREATE INDEX index_posts_vse ON posts (thread, parent, tree);
+CREATE INDEX index_posts_vse ON posts (thread, parent, (tree[1]));
