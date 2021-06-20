@@ -7,6 +7,9 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
     email CITEXT UNIQUE
 );
 
+CREATE INDEX index_users_nickname ON users USING HASH (nickname);
+CREATE INDEX index_users_email ON users USING HASH (email);
+
 CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     slug CITEXT UNIQUE,
     posts INT DEFAULT 0,
@@ -15,6 +18,10 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     user_nickname CITEXT,
     FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
 );
+
+CREATE INDEX index_forums_slug ON forums USING HASH (slug);
+CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
+CREATE INDEX index_forums ON forums (slug, title, user_nickname, posts, threads);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS threads (
     id SERIAL PRIMARY KEY,
@@ -29,6 +36,10 @@ CREATE UNLOGGED TABLE IF NOT EXISTS threads (
     created TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE INDEX index_threads_created ON threads (created);
+CREATE INDEX index_threads_slug ON threads USING HASH (slug);
+CREATE INDEX index_threads_id ON threads (id);
+
 CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     id BIGSERIAL PRIMARY KEY,
     author CITEXT,
@@ -42,12 +53,19 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     tree BIGINT[]
 );
 
+
+CREATE INDEX index_posts_id ON posts (id);
+CREATE INDEX index_posts_thread ON posts (thread);
+CREATE INDEX index_posts_tree_id ON posts ((tree[1]), id);
+
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
     FOREIGN KEY (nickname) REFERENCES users (nickname) ON DELETE CASCADE,
     thread_id INT,
     vote INT
 );
+
+CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
 
 CREATE FUNCTION insert_votes()
     RETURNS TRIGGER AS
@@ -151,20 +169,3 @@ CREATE TRIGGER forum_participant_post
     FOR EACH ROW
 EXECUTE PROCEDURE forum_participant();
 
-CREATE INDEX index_users_nickname ON users USING HASH (nickname);
-CREATE INDEX index_users_email ON users USING HASH (email);
-
-CREATE INDEX index_forums_slug ON forums USING HASH (slug);
-CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
-CREATE INDEX index_forums ON forums (slug, title, user_nickname, posts, threads);
-
-CREATE INDEX index_threads_created ON threads (created);
-CREATE INDEX index_threads_slug ON threads USING HASH (slug);
-CREATE INDEX index_threads_id ON threads (id);
-
-CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
-
-CREATE INDEX index_posts_id ON posts (id);
-CREATE INDEX index_posts_thread ON posts (thread);
-CREATE INDEX index_posts_tree_id ON posts ((tree[1]), id);
-CREATE INDEX index_posts ON posts (id, author, created, forum, isEdited, message, parent, thread);
