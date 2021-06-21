@@ -80,7 +80,7 @@ func (f *ForumRepository) ForumGetThreads(slug string, limitInt int, descBool bo
 }
 
 func (f *ForumRepository) ForumGetUsers(slug string, limitInt int, descBool bool, since string) ([]models.User, error) {
-	query := "SELECT DISTINCT u.nickname, u.fullname, u.about, u.email FROM forum_participants as f JOIN users AS u ON f.user_nickname = u.nickname WHERE f.forum = $1"
+	query := "SELECT u.nickname, u.fullname, u.about, u.email FROM forum_participants as f JOIN users AS u ON f.user_nickname = u.nickname WHERE f.forum = $1"
 	queryLimit := " ORDER BY u.nickname"
 
 	if since != "" {
