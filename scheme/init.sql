@@ -53,7 +53,6 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     tree BIGINT[]
 );
 
-
 CREATE INDEX index_posts_id ON posts (id);
 CREATE INDEX index_posts_thread ON posts (thread);
 CREATE INDEX index_posts_tree_id ON posts ((tree[1]), id);
@@ -146,6 +145,9 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     forum CITEXT,
     user_nickname CITEXT
 );
+
+CREATE INDEX index_participants_nickname ON forum_participants USING HASH (user_nickname);
+CREATE INDEX index_participants_forum ON forum_participants USING HASH (forum);
 
 CREATE FUNCTION forum_participant()
     RETURNS TRIGGER AS
