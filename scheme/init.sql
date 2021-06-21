@@ -57,6 +57,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 CREATE INDEX index_posts_id ON posts (id);
 CREATE INDEX index_posts_parent ON posts (parent);
 CREATE INDEX index_posts_thread ON posts (thread);
+CREATE INDEX index_posts_tree ON posts ((tree[1]));
+
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
