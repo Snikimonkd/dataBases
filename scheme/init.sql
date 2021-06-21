@@ -21,7 +21,6 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forums (
 
 CREATE INDEX index_forums_slug ON forums USING HASH (slug);
 CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
-CREATE INDEX index_forums ON forums (slug, title, user_nickname, posts, threads);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS threads (
     id SERIAL PRIMARY KEY,
@@ -39,6 +38,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS threads (
 CREATE INDEX index_threads_created ON threads (created);
 CREATE INDEX index_threads_slug ON threads USING HASH (slug);
 CREATE INDEX index_threads_id ON threads (id);
+CREATE INDEX index_threads_votes ON threads (votes);
+
 
 CREATE UNLOGGED TABLE IF NOT EXISTS posts (
     id BIGSERIAL PRIMARY KEY,
@@ -55,7 +56,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 
 CREATE INDEX index_posts_id ON posts (id);
 CREATE INDEX index_posts_thread ON posts (thread);
-CREATE INDEX index_posts_tree_id ON posts ((tree[1]), id);
+CREATE INDEX index_posts_tree ON posts (tree);
+CREATE INDEX index_posts_tree1 ON posts ((tree[1]));
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
