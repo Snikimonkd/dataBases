@@ -7,7 +7,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
     email CITEXT UNIQUE
 );
 
-CREATE INDEX index_users_nickname ON users (nickname);
+CREATE INDEX index_users_nickname ON users USING HASH (nickname);
 CREATE INDEX index_users_email ON users USING HASH (email);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forums (
@@ -57,8 +57,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 CREATE INDEX index_posts_id ON posts (id);
 CREATE INDEX index_posts_parent ON posts (parent);
 CREATE INDEX index_posts_thread ON posts (thread);
-CREATE INDEX index_posts_tree ON posts ((tree[1]));
-
+CREATE INDEX index_posts_tree ON posts (tree);
+CREATE INDEX index_posts_tree1 ON posts ((tree[1]));
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
@@ -67,7 +67,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     vote INT
 );
 
-CREATE UNIQUE INDEX vote_unique on votes (nickname, thread_id);
+CREATE INDEX vote_unique on votes (nickname, thread_id);
 
 CREATE FUNCTION insert_votes()
     RETURNS TRIGGER AS
@@ -147,18 +147,32 @@ EXECUTE PROCEDURE update_threads();
 CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     forum CITEXT,
     user_nickname CITEXT,
+    user_fullname CITEXT,
+    user_about TEXT,
+    user_email CITEXT,
     UNIQUE (forum, user_nickname)
 );
 
 CREATE INDEX index_participants_nickname ON forum_participants (user_nickname);
-CREATE INDEX index_participants_forum ON forum_participants (user_nickname, forum);
+CREATE INDEX index_participants_forum ON forum_participants (forum);
+CREATE INDEX forum_participants_all ON forum_participants (user_nickname, user_fullname, user_about, user_email, forum);
 
 CREATE FUNCTION forum_participant()
     RETURNS TRIGGER AS
 $forum_participant$
+DECLARE
+    buf_nickname CITEXT;
+    buf_fullname CITEXT;
+    buf_about    TEXT;
+    buf_email    CITEXT;
 BEGIN
-    INSERT INTO forum_participants (forum, user_nickname)
-    VALUES (new.forum, new.author)
+    SELECT nickname, fullname, about, email
+    FROM users
+    WHERE nickname = new.author
+    INTO buf_nickname, buf_fullname, buf_about, buf_email;
+
+    INSERT INTO forum_participants (forum, user_nickname, user_fullname, user_about, user_email)
+    VALUES (new.forum, buf_nickname, buf_fullname, buf_about, buf_email)
     ON CONFLICT DO NOTHING;
     RETURN new;
 END;
