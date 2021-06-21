@@ -51,7 +51,7 @@ func (a *ForumHandler) ForumGetOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseForum(res, status, w)
 }
 
 func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +97,7 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseThreads(res, status, w)
 }
 
 func (a *ForumHandler) ForumGetUsers(w http.ResponseWriter, r *http.Request) {
@@ -143,5 +143,5 @@ func (a *ForumHandler) ForumGetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseUsers(res, status, w)
 }

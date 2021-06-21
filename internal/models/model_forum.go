@@ -1,8 +1,11 @@
 package models
 
 import (
-	"encoding/json"
 	"io"
+	"log"
+	"net/http"
+
+	"github.com/mailru/easyjson"
 )
 
 // Информация о форуме.
@@ -24,9 +27,26 @@ type Forum struct {
 	Threads int `json:"threads,omitempty"`
 }
 
+func ResponseForum(res Forum, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+}
+
 func ReadForum(body io.ReadCloser) (Forum, error) {
 	var newForum Forum
-	decoder := json.NewDecoder(body)
-	err := decoder.Decode(&newForum)
+	err := easyjson.UnmarshalFromReader(body, &newForum)
 	return newForum, err
 }

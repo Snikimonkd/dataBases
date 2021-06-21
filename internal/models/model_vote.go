@@ -1,8 +1,9 @@
 package models
 
 import (
-	"encoding/json"
 	"io"
+
+	easyjson "github.com/mailru/easyjson"
 )
 
 // Информация о голосовании пользователя.
@@ -17,7 +18,6 @@ type Vote struct {
 
 func ReadVote(body io.ReadCloser) (Vote, error) {
 	var newVote Vote
-	decoder := json.NewDecoder(body)
-	err := decoder.Decode(&newVote)
+	err := easyjson.UnmarshalFromReader(body, &newVote)
 	return newVote, err
 }

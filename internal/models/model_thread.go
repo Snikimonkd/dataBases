@@ -1,9 +1,12 @@
 package models
 
 import (
-	"encoding/json"
 	"io"
+	"log"
+	"net/http"
 	"time"
+
+	easyjson "github.com/mailru/easyjson"
 )
 
 // Ветка обсуждения на форуме.
@@ -34,9 +37,47 @@ type Thread struct {
 	Created time.Time `json:"created,omitempty"`
 }
 
+//easyjson:json
+type Threads []Thread
+
 func ReadThread(body io.ReadCloser) (Thread, error) {
 	var newThread Thread
-	decoder := json.NewDecoder(body)
-	err := decoder.Decode(&newThread)
+	err := easyjson.UnmarshalFromReader(body, &newThread)
 	return newThread, err
+}
+
+func ResponseThread(res Thread, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+}
+
+func ResponseThreads(res Threads, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 }

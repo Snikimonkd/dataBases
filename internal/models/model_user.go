@@ -1,8 +1,11 @@
 package models
 
 import (
-	"encoding/json"
 	"io"
+	"log"
+	"net/http"
+
+	easyjson "github.com/mailru/easyjson"
 )
 
 // Информация о пользователе.
@@ -34,9 +37,47 @@ type UserUpdate struct {
 	Email string `json:"email,omitempty"`
 }
 
+//easyjson:json
+type Users []User
+
 func ReadUser(body io.ReadCloser) (User, error) {
 	var newUser User
-	decoder := json.NewDecoder(body)
-	err := decoder.Decode(&newUser)
+	err := easyjson.UnmarshalFromReader(body, &newUser)
 	return newUser, err
+}
+
+func ResponseUsers(res Users, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+}
+
+func ResponseUser(res User, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 }

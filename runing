@@ -3,6 +3,3 @@ sudo docker run -d --rm --memory 2G --log-opt max-size=5M --log-opt max-file=3 -
 sudo ./tech-db-forum func -u http://localhost:5000/api -r report.html
 sudo ./tech-db-forum fill --url=http://localhost:5000/api --timeout=900
 sudo ./tech-db-forum perf --url=http://localhost:5000/api --duration=600 --step=60
-
-ForumGetUsers
-ThreadGetPosts

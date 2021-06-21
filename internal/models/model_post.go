@@ -3,8 +3,11 @@ package models
 import (
 	"encoding/json"
 	"io"
+	"log"
+	"net/http"
 
 	"github.com/go-openapi/strfmt"
+	easyjson "github.com/mailru/easyjson"
 )
 
 // Сообщение внутри ветки обсуждения на форуме.
@@ -42,10 +45,12 @@ type PostDetails struct {
 	Forum  *Forum  `json:"forum,omitempty"`
 }
 
+//easyjson:json
+type Posts []Post
+
 func ReadPost(body io.ReadCloser) (Post, error) {
 	var newPost Post
-	decoder := json.NewDecoder(body)
-	err := decoder.Decode(&newPost)
+	err := easyjson.UnmarshalFromReader(body, &newPost)
 	return newPost, err
 }
 
@@ -54,4 +59,58 @@ func ReadPosts(body io.ReadCloser) ([]Post, error) {
 	decoder := json.NewDecoder(body)
 	err := decoder.Decode(&newPosts)
 	return newPosts, err
+}
+
+func ResponsePost(res Post, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+}
+
+func ResponsePosts(res Posts, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+}
+
+func ResponsePostDetails(res PostDetails, status int, w http.ResponseWriter) {
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(status)
+	data, err := res.MarshalJSON()
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	_, err = w.Write(data)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		return
+	}
 }

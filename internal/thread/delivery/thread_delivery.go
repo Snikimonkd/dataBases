@@ -42,7 +42,7 @@ func (a *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseThread(res, status, w)
 }
 
 func (a *ThreadHandler) ThreadGetOne(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +62,7 @@ func (a *ThreadHandler) ThreadGetOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseThread(res, status, w)
 }
 
 func (a *ThreadHandler) ThreadGetPosts(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +113,7 @@ func (a *ThreadHandler) ThreadGetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponsePosts(res, status, w)
 }
 
 func (a *ThreadHandler) ThreadUpdate(w http.ResponseWriter, r *http.Request) {
@@ -141,7 +141,7 @@ func (a *ThreadHandler) ThreadUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseThread(res, status, w)
 }
 
 func (a *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
@@ -169,5 +169,5 @@ func (a *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseThread(res, status, w)
 }

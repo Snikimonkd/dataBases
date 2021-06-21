@@ -28,14 +28,14 @@ func (u *UserUseCase) UserCreate(newUser models.User) (interface{}, int, error) 
 	return newUser, 201, nil
 }
 
-func (u *UserUseCase) UserGetOne(nickname string) (interface{}, int, error) {
+func (u *UserUseCase) UserGetOne(nickname string) (models.User, int, error) {
 	users, err := u.Repository.UserGetOne(nickname)
 	if err != nil {
-		return nil, 500, err
+		return models.User{}, 500, err
 	}
 
 	if len(users) == 0 {
-		return nil, 404, errors.New("can't find user")
+		return models.User{}, 404, errors.New("can't find user")
 	}
 
 	return users[0], 200, nil
@@ -57,28 +57,28 @@ func (u *UserUseCase) CheckFields(oldUser, newUser models.User) models.User {
 	return oldUser
 }
 
-func (u *UserUseCase) UserUpdate(newUser models.User) (interface{}, int, error) {
+func (u *UserUseCase) UserUpdate(newUser models.User) (models.User, int, error) {
 	users, err := u.Repository.CheckExist(newUser)
 	if err != nil {
-		return nil, 500, err
+		return models.User{}, 500, err
 	}
 	if len(users) == 0 {
-		return nil, 404, errors.New("can't find user")
+		return models.User{}, 404, errors.New("can't find user")
 	}
 
 	newUser = u.CheckFields(users[0], newUser)
 
 	users, err = u.Repository.CheckUpdateData(newUser)
 	if err != nil {
-		return nil, 500, err
+		return models.User{}, 500, err
 	}
 	if len(users) > 0 {
-		return nil, 409, errors.New("new data conflicts with existing data")
+		return models.User{}, 409, errors.New("new data conflicts with existing data")
 	}
 
 	err = u.Repository.UserUpdate(newUser)
 	if err != nil {
-		return nil, 500, err
+		return models.User{}, 500, err
 	}
 
 	return newUser, 200, nil

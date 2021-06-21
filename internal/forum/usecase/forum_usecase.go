@@ -37,19 +37,19 @@ func (u *ForumUseCase) ForumCreate(newForum models.Forum) (interface{}, int, err
 	return newForum, 201, nil
 }
 
-func (u *ForumUseCase) ForumGetOne(slug string) (interface{}, int, error) {
+func (u *ForumUseCase) ForumGetOne(slug string) (models.Forum, int, error) {
 	forums, err := u.Repository.ForumGetOne(slug)
 	if err != nil {
-		return nil, 500, err
+		return models.Forum{}, 500, err
 	}
 	if len(forums) == 0 {
-		return nil, 404, errors.New("can`t find forum")
+		return models.Forum{}, 404, errors.New("can`t find forum")
 	}
 
 	return forums[0], 200, nil
 }
 
-func (u *ForumUseCase) ForumGetThreads(slug string, limitInt int, descBool bool, since string) (interface{}, int, error) {
+func (u *ForumUseCase) ForumGetThreads(slug string, limitInt int, descBool bool, since string) (models.Threads, int, error) {
 	var newForum models.Forum
 	newForum.Slug = slug
 	forums, err := u.Repository.CheckForums(newForum)
@@ -68,7 +68,7 @@ func (u *ForumUseCase) ForumGetThreads(slug string, limitInt int, descBool bool,
 	return threads, 200, err
 }
 
-func (u *ForumUseCase) ForumGetUsers(slug string, limitInt int, descBool bool, since string) (interface{}, int, error) {
+func (u *ForumUseCase) ForumGetUsers(slug string, limitInt int, descBool bool, since string) (models.Users, int, error) {
 	var newForum models.Forum
 	newForum.Slug = slug
 	forums, err := u.Repository.CheckForums(newForum)

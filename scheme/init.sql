@@ -19,7 +19,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
 );
 
-CREATE INDEX index_forums_slug ON forums USING HASH (slug);
+CREATE INDEX index_forums_slug ON forums USING HASH(slug);
 CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS threads (
@@ -153,8 +153,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     UNIQUE (forum, user_nickname)
 );
 
-CREATE INDEX index_participants_nickname ON forum_participants (user_nickname);
-CREATE INDEX index_participants_forum ON forum_participants (forum);
+CREATE INDEX index_participants_nickname ON forum_participants USING HASH (user_nickname);
+CREATE INDEX index_participants_forum ON forum_participants USING HASH (forum);
 CREATE INDEX forum_participants_all ON forum_participants (user_nickname, user_fullname, user_about, user_email, forum);
 
 CREATE FUNCTION forum_participant()

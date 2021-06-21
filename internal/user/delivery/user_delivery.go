@@ -60,7 +60,7 @@ func (a *UserHandler) UserGetOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseUser(res, status, w)
 }
 
 func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
@@ -89,5 +89,5 @@ func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseUser(res, status, w)
 }

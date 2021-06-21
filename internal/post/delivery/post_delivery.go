@@ -45,7 +45,7 @@ func (a *PostHandler) PostGetOne(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponsePostDetails(res, status, w)
 }
 
 func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +82,7 @@ func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponsePost(res, status, w)
 }
 
 func (a *PostHandler) PostsCreate(w http.ResponseWriter, r *http.Request) {
@@ -110,5 +110,5 @@ func (a *PostHandler) PostsCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponsePosts(res, status, w)
 }

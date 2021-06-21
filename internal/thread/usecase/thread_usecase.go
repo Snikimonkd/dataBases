@@ -13,14 +13,14 @@ type ThreadUseCase struct {
 	Repository thread_repository.ThreadRepository
 }
 
-func (u *ThreadUseCase) ThreadCreate(newThread models.Thread) (interface{}, int, error) {
+func (u *ThreadUseCase) ThreadCreate(newThread models.Thread) (models.Thread, int, error) {
 	forums, err := u.Repository.CheckForum(newThread)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 	if len(forums) == 0 {
-		return nil, 404, errors.New("can`t find forum")
+		return models.Thread{}, 404, errors.New("can`t find forum")
 	}
 
 	newThread.Forum = forums[0].Slug
@@ -28,16 +28,16 @@ func (u *ThreadUseCase) ThreadCreate(newThread models.Thread) (interface{}, int,
 	users, err := u.Repository.CheckUser(newThread.Author)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 	if len(users) == 0 {
-		return nil, 404, errors.New("can`t find user")
+		return models.Thread{}, 404, errors.New("can`t find user")
 	}
 
 	threads, err := u.Repository.CheckThread(newThread)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 	if len(threads) != 0 {
 		return threads[0], 409, nil
@@ -46,22 +46,22 @@ func (u *ThreadUseCase) ThreadCreate(newThread models.Thread) (interface{}, int,
 	newThread.Id, err = u.Repository.CreateThread(newThread)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 
 	return newThread, 201, nil
 }
 
-func (u *ThreadUseCase) ThreadGetOne(slug_or_id string) (interface{}, int, error) {
+func (u *ThreadUseCase) ThreadGetOne(slug_or_id string) (models.Thread, int, error) {
 	id, err := strconv.Atoi(slug_or_id)
 	if err == nil {
 		threads, err := u.Repository.ThreadGetOneId(id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 		if len(threads) == 0 {
-			return nil, 404, errors.New("cant find thread")
+			return models.Thread{}, 404, errors.New("cant find thread")
 		}
 
 		return threads[0], 200, nil
@@ -70,36 +70,36 @@ func (u *ThreadUseCase) ThreadGetOne(slug_or_id string) (interface{}, int, error
 	threads, err := u.Repository.ThreadGetOneSlug(slug_or_id)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 
 	if len(threads) == 0 {
-		return nil, 404, errors.New("cant find thread")
+		return models.Thread{}, 404, errors.New("cant find thread")
 	}
 
 	return threads[0], 200, nil
 }
 
-func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (interface{}, int, error) {
+func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (models.Thread, int, error) {
 	var threads []models.Thread
 	id, err := strconv.Atoi(slug_or_id)
 	if err == nil {
 		threads, err = u.Repository.ThreadGetOneId(id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 		if len(threads) == 0 {
-			return nil, 404, errors.New("cant find thread 1")
+			return models.Thread{}, 404, errors.New("cant find thread 1")
 		}
 	} else {
 		threads, err = u.Repository.ThreadGetOneSlug(slug_or_id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 		if len(threads) == 0 {
-			return nil, 404, errors.New("cant find thread 2")
+			return models.Thread{}, 404, errors.New("cant find thread 2")
 		}
 	}
 
@@ -108,17 +108,17 @@ func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (inte
 	users, err := u.Repository.CheckUser(newVote.Nickname)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 	if len(users) == 0 {
-		return nil, 404, errors.New("can`t find user")
+		return models.Thread{}, 404, errors.New("can`t find user")
 	}
 
 	lastVotes, err := u.Repository.GetVote(newVote, thread.Id)
 	if err != nil {
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 	}
 	if len(lastVotes) != 0 {
@@ -128,7 +128,7 @@ func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (inte
 		err = u.Repository.UpdateVote(newVote, thread.Id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 
 		thread.Votes += newVote.Voice * 2
@@ -138,14 +138,14 @@ func (u *ThreadUseCase) ThreadVote(slug_or_id string, newVote models.Vote) (inte
 	err = u.Repository.InsertNewVote(newVote, thread.Id)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 
 	thread.Votes += newVote.Voice
 	return thread, 200, nil
 }
 
-func (u *ThreadUseCase) ThreadGetPosts(slug_or_id string, limitInt int, descBool bool, since string, sort string) (interface{}, int, error) {
+func (u *ThreadUseCase) ThreadGetPosts(slug_or_id string, limitInt int, descBool bool, since string, sort string) (models.Posts, int, error) {
 	var threads []models.Thread
 	id, err := strconv.Atoi(slug_or_id)
 	if err == nil {
@@ -195,26 +195,26 @@ func (u *ThreadUseCase) ThreadGetPosts(slug_or_id string, limitInt int, descBool
 	return posts, 200, nil
 }
 
-func (u *ThreadUseCase) ThreadUpdate(slug_or_id string, newThread models.Thread) (interface{}, int, error) {
+func (u *ThreadUseCase) ThreadUpdate(slug_or_id string, newThread models.Thread) (models.Thread, int, error) {
 	var threads []models.Thread
 	id, err := strconv.Atoi(slug_or_id)
 	if err == nil {
 		threads, err = u.Repository.ThreadGetOneId(id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 		if len(threads) == 0 {
-			return nil, 404, errors.New("cant find thread 1")
+			return models.Thread{}, 404, errors.New("cant find thread 1")
 		}
 	} else {
 		threads, err = u.Repository.ThreadGetOneSlug(slug_or_id)
 		if err != nil {
 			log.Println(err)
-			return nil, 500, nil
+			return models.Thread{}, 500, nil
 		}
 		if len(threads) == 0 {
-			return nil, 404, errors.New("cant find thread 2")
+			return models.Thread{}, 404, errors.New("cant find thread 2")
 		}
 	}
 
@@ -225,7 +225,7 @@ func (u *ThreadUseCase) ThreadUpdate(slug_or_id string, newThread models.Thread)
 	err = u.Repository.ThreadUpdate(thread)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Thread{}, 500, nil
 	}
 
 	return thread, 200, nil

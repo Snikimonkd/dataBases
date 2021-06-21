@@ -14,7 +14,7 @@ type PostUseCase struct {
 	Repository post_repository.PostRepository
 }
 
-func (u *PostUseCase) PostsCreate(slug_or_id string, newPosts []models.Post) (interface{}, int, error) {
+func (u *PostUseCase) PostsCreate(slug_or_id string, newPosts []models.Post) (models.Posts, int, error) {
 	var threads []models.Thread
 	id, err := strconv.Atoi(slug_or_id)
 	if err == nil {
@@ -76,14 +76,14 @@ func (u *PostUseCase) PostsCreate(slug_or_id string, newPosts []models.Post) (in
 	return newPosts, 201, nil
 }
 
-func (u *PostUseCase) PostGetOne(id int, related string) (interface{}, int, error) {
+func (u *PostUseCase) PostGetOne(id int, related string) (models.PostDetails, int, error) {
 	posts, err := u.Repository.PostGetOne(id)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.PostDetails{}, 500, nil
 	}
 	if len(posts) == 0 {
-		return nil, 404, errors.New("cant find post")
+		return models.PostDetails{}, 404, errors.New("cant find post")
 	}
 
 	post := posts[0]
@@ -105,10 +105,10 @@ func (u *PostUseCase) PostGetOne(id int, related string) (interface{}, int, erro
 				users, err := u.Repository.PostGetOneUser(post)
 				if err != nil {
 					log.Println(err)
-					return nil, 500, nil
+					return models.PostDetails{}, 500, nil
 				}
 				if len(users) == 0 {
-					return nil, 404, errors.New("cant find user")
+					return models.PostDetails{}, 404, errors.New("cant find user")
 				}
 				res.Author = &users[0]
 			}
@@ -117,10 +117,10 @@ func (u *PostUseCase) PostGetOne(id int, related string) (interface{}, int, erro
 				forums, err := u.Repository.PostGetOneForum(post)
 				if err != nil {
 					log.Println(err)
-					return nil, 500, nil
+					return models.PostDetails{}, 500, nil
 				}
 				if len(forums) == 0 {
-					return nil, 404, errors.New("cant find forum")
+					return models.PostDetails{}, 404, errors.New("cant find forum")
 				}
 				res.Forum = &forums[0]
 			}
@@ -129,10 +129,10 @@ func (u *PostUseCase) PostGetOne(id int, related string) (interface{}, int, erro
 				threads, err := u.Repository.PostGetOneThread(post)
 				if err != nil {
 					log.Println(err)
-					return nil, 500, nil
+					return models.PostDetails{}, 500, nil
 				}
 				if len(threads) == 0 {
-					return nil, 404, errors.New("cant find forum")
+					return models.PostDetails{}, 404, errors.New("cant find forum")
 				}
 				res.Thread = &threads[0]
 			}
@@ -142,14 +142,14 @@ func (u *PostUseCase) PostGetOne(id int, related string) (interface{}, int, erro
 	return res, 200, nil
 }
 
-func (u *PostUseCase) PostUpdate(newPost models.Post) (interface{}, int, error) {
+func (u *PostUseCase) PostUpdate(newPost models.Post) (models.Post, int, error) {
 	posts, err := u.Repository.PostGetOne(newPost.Id)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Post{}, 500, nil
 	}
 	if len(posts) == 0 {
-		return nil, 404, errors.New("cant find post")
+		return models.Post{}, 404, errors.New("cant find post")
 	}
 
 	post := posts[0]
@@ -162,7 +162,7 @@ func (u *PostUseCase) PostUpdate(newPost models.Post) (interface{}, int, error) 
 	err = u.Repository.PostUpdate(newPost)
 	if err != nil {
 		log.Println(err)
-		return nil, 500, nil
+		return models.Post{}, 500, nil
 	}
 
 	post.IsEdited = true
