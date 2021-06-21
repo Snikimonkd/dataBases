@@ -7,7 +7,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
     email CITEXT UNIQUE
 );
 
-CREATE INDEX index_users_nickname ON users USING HASH (nickname);
+CREATE INDEX index_users_nickname ON users (nickname);
 CREATE INDEX index_users_email ON users USING HASH (email);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forums (
@@ -35,10 +35,10 @@ CREATE UNLOGGED TABLE IF NOT EXISTS threads (
     created TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+CREATE INDEX index_threads_id ON threads (id);
 CREATE INDEX index_threads_created ON threads (created);
 CREATE INDEX index_threads_slug ON threads USING HASH (slug);
-CREATE INDEX index_threads_id ON threads (id);
-CREATE INDEX index_threads_votes ON threads (votes);
+CREATE INDEX index_forum ON threads USING HASH (forum);
 
 
 CREATE UNLOGGED TABLE IF NOT EXISTS posts (
@@ -55,9 +55,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 );
 
 CREATE INDEX index_posts_id ON posts (id);
+CREATE INDEX index_posts_parent ON posts (parent);
 CREATE INDEX index_posts_thread ON posts (thread);
-CREATE INDEX index_posts_tree ON posts (tree);
-CREATE INDEX index_posts_tree1 ON posts ((tree[1]));
 
 CREATE UNLOGGED TABLE IF NOT EXISTS votes (
     nickname CITEXT,
@@ -145,18 +144,20 @@ EXECUTE PROCEDURE update_threads();
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forum_participants (
     forum CITEXT,
-    user_nickname CITEXT
+    user_nickname CITEXT,
+    UNIQUE (forum, user_nickname)
 );
 
-CREATE INDEX index_participants_nickname ON forum_participants USING HASH (user_nickname);
-CREATE INDEX index_participants_forum ON forum_participants USING HASH (forum);
+CREATE INDEX index_participants_nickname ON forum_participants (user_nickname);
+CREATE INDEX index_participants_forum ON forum_participants (user_nickname, forum);
 
 CREATE FUNCTION forum_participant()
     RETURNS TRIGGER AS
 $forum_participant$
 BEGIN
     INSERT INTO forum_participants (forum, user_nickname)
-    VALUES (new.forum, new.author);
+    VALUES (new.forum, new.author)
+    ON CONFLICT DO NOTHING;
     RETURN new;
 END;
 $forum_participant$ LANGUAGE plpgsql;
@@ -172,4 +173,3 @@ CREATE TRIGGER forum_participant_post
     ON posts
     FOR EACH ROW
 EXECUTE PROCEDURE forum_participant();
-
