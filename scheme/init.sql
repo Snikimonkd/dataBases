@@ -9,7 +9,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS users (
 
 CREATE INDEX index_users_nickname ON users USING HASH (nickname);
 CREATE INDEX index_users_email ON users USING HASH (email);
-CREATE INDEX index_users_email_nickname ON users USING HASH (email, nickname);
+CREATE INDEX index_users_email_nickname ON users (email, nickname);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     slug CITEXT UNIQUE,
@@ -20,7 +20,7 @@ CREATE UNLOGGED TABLE IF NOT EXISTS forums (
     FOREIGN KEY (user_nickname) REFERENCES users (nickname) ON DELETE CASCADE
 );
 
-CREATE INDEX index_forums_slug ON forums USING HASH(slug);
+CREATE INDEX index_forums_slug ON forums USING HASH (slug);
 CREATE INDEX index_forums_users ON forums USING HASH (user_nickname);
 
 CREATE UNLOGGED TABLE IF NOT EXISTS threads (
@@ -56,8 +56,8 @@ CREATE UNLOGGED TABLE IF NOT EXISTS posts (
 );
 
 CREATE INDEX index_posts_id ON posts (id);
-CREATE INDEX index_posts_thread_tree ON posts (thread, tree);
 CREATE INDEX index_posts_thread_id ON posts (thread, id);
+CREATE INDEX index_posts_thread_tree ON posts (thread, tree);
 CREATE INDEX index_posts_thread_parent_tree ON posts (thread, parent, (tree[1]));
 CREATE INDEX index_posts_tree1 ON posts ((tree[1]));
 
