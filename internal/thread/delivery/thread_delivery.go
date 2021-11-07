@@ -20,7 +20,7 @@ func (a *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
 	newThread, err := models.ReadThread(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -29,7 +29,7 @@ func (a *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (a *ThreadHandler) ThreadCreate(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.ThreadCreate(newThread)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -51,14 +51,14 @@ func (a *ThreadHandler) ThreadGetOne(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.ThreadGetOne(slug_or_id)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (a *ThreadHandler) ThreadGetPosts(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -84,7 +84,7 @@ func (a *ThreadHandler) ThreadGetPosts(w http.ResponseWriter, r *http.Request) {
 		limitInt, err = strconv.Atoi(limit[0])
 		if err != nil {
 			log.Println(err)
-			models.ResponseError(err.Error(), 404, w)
+			models.ResponseError(err.Error(), 404, w, r)
 		}
 	}
 
@@ -109,7 +109,7 @@ func (a *ThreadHandler) ThreadGetPosts(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.ThreadGetPosts(slug_or_id, limitInt, descBool, since[0], sort[0])
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -121,7 +121,7 @@ func (a *ThreadHandler) ThreadUpdate(w http.ResponseWriter, r *http.Request) {
 	newThread, err := models.ReadThread(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -130,14 +130,14 @@ func (a *ThreadHandler) ThreadUpdate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.ThreadUpdate(slug_or_id, newThread)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -149,7 +149,7 @@ func (a *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
 	newVote, err := models.ReadVote(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -158,14 +158,14 @@ func (a *ThreadHandler) ThreadVote(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.ThreadVote(slug_or_id, newVote)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 

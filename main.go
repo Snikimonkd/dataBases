@@ -14,12 +14,18 @@ import (
 	"net/http"
 
 	sw "github.com/Snikimonkd/dataBases/internal"
+	"github.com/Snikimonkd/dataBases/internal/utils/metrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
 	log.Printf("Server started")
 
 	router := sw.NewRouter()
+
+	metrics.New()
+
+	router.Handle("/metrics", promhttp.Handler()).Methods("GET")
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }

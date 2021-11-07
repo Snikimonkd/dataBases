@@ -22,11 +22,11 @@ func (a *App) Clear(w http.ResponseWriter, r *http.Request) {
 	err := a.User.Usecase.Clear()
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 500, w)
+		models.ResponseError(err.Error(), 500, w, r)
 		return
 	}
 
-	models.ResponseJson(nil, 200, w)
+	models.ResponseJson(nil, 200, w, r)
 }
 
 func (a *App) Status(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +35,7 @@ func (a *App) Status(w http.ResponseWriter, r *http.Request) {
 	users, err := a.User.Usecase.GetStatus()
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 500, w)
+		models.ResponseError(err.Error(), 500, w, r)
 		return
 	}
 	st.User = users
@@ -43,7 +43,7 @@ func (a *App) Status(w http.ResponseWriter, r *http.Request) {
 	forums, err := a.Forum.Usecase.GetStatus()
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 500, w)
+		models.ResponseError(err.Error(), 500, w, r)
 		return
 	}
 	st.Forum = forums
@@ -51,7 +51,7 @@ func (a *App) Status(w http.ResponseWriter, r *http.Request) {
 	threads, err := a.Thread.Usecase.GetStatus()
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 500, w)
+		models.ResponseError(err.Error(), 500, w, r)
 		return
 	}
 	st.Thread = threads
@@ -59,10 +59,10 @@ func (a *App) Status(w http.ResponseWriter, r *http.Request) {
 	posts, err := a.Post.Usecase.GetStatus()
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 500, w)
+		models.ResponseError(err.Error(), 500, w, r)
 		return
 	}
 	st.Post = posts
 
-	models.ResponseJson(st, 200, w)
+	models.ResponseJson(st, 200, w, r)
 }

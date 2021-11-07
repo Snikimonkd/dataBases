@@ -21,14 +21,14 @@ func (a *PostHandler) PostGetOne(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		err := errors.New("пользователя с таким id нет")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -41,7 +41,7 @@ func (a *PostHandler) PostGetOne(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.PostGetOne(idInt, related[0])
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -53,7 +53,7 @@ func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
 	newPost, err := models.ReadPost(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -62,14 +62,14 @@ func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		err := errors.New("пользователя с таким id нет")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -78,7 +78,7 @@ func (a *PostHandler) PostUpdate(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.PostUpdate(newPost)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -90,7 +90,7 @@ func (a *PostHandler) PostsCreate(w http.ResponseWriter, r *http.Request) {
 	newPosts, err := models.ReadPosts(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -99,14 +99,14 @@ func (a *PostHandler) PostsCreate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.PostsCreate(slug, newPosts)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 

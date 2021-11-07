@@ -62,7 +62,7 @@ services:
     depends_on:
       - prometheus
     ports:
-      - 3001:3001
+      - 3000:3000
     networks:
       - back-tier
       - front-tier

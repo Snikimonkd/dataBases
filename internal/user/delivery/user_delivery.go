@@ -19,7 +19,7 @@ func (a *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 	newUser, err := models.ReadUser(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -28,7 +28,7 @@ func (a *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err = errors.New("нет никнэйма")
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 	newUser.Nickname = nickname
@@ -36,11 +36,11 @@ func (a *UserHandler) UserCreate(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.UserCreate(newUser)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseJson(res, status, w, r)
 }
 
 func (a *UserHandler) UserGetOne(w http.ResponseWriter, r *http.Request) {
@@ -49,14 +49,14 @@ func (a *UserHandler) UserGetOne(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет никнэйма")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.UserGetOne(nickname)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -68,7 +68,7 @@ func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	newUser, err := models.ReadUser(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
@@ -77,7 +77,7 @@ func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err = errors.New("нет никнэйма")
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 	newUser.Nickname = nickname
@@ -85,7 +85,7 @@ func (a *UserHandler) UserUpdate(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.UserUpdate(newUser)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 

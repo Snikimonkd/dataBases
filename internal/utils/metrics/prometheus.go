@@ -32,9 +32,9 @@ func New() {
 }
 
 func CreateRequestHits(status int, r *http.Request) {
-	hits.WithLabelValues(strconv.Itoa(status), strings.Split(r.URL.Path, "/")[1], r.Method).Inc()
+	hits.WithLabelValues(strconv.Itoa(status), strings.Split(r.URL.Path, "/")[2], r.Method).Inc()
 }
 
 func CreateRequestErrors(r *http.Request, err error) {
-	errors.WithLabelValues(strings.Split(r.URL.Path, "/")[1], r.Method, err.Error()).Inc()
+	errors.WithLabelValues(strings.Split(r.URL.Path, "/")[2], r.Method, err.Error()).Inc()
 }

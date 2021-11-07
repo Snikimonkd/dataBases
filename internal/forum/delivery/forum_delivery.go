@@ -20,18 +20,18 @@ func (a *ForumHandler) ForumCreate(w http.ResponseWriter, r *http.Request) {
 	newForum, err := models.ReadForum(r.Body)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), 400, w)
+		models.ResponseError(err.Error(), 400, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.ForumCreate(newForum)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
-	models.ResponseJson(res, status, w)
+	models.ResponseJson(res, status, w, r)
 }
 
 func (a *ForumHandler) ForumGetOne(w http.ResponseWriter, r *http.Request) {
@@ -40,14 +40,14 @@ func (a *ForumHandler) ForumGetOne(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
 	res, status, err := a.Usecase.ForumGetOne(slug)
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -60,7 +60,7 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 		limitInt, err = strconv.Atoi(limit[0])
 		if err != nil {
 			log.Println(err)
-			models.ResponseError(err.Error(), 404, w)
+			models.ResponseError(err.Error(), 404, w, r)
 		}
 	}
 
@@ -93,7 +93,7 @@ func (a *ForumHandler) ForumGetThreads(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.ForumGetThreads(slug, limitInt, descBool, since[0])
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
@@ -106,7 +106,7 @@ func (a *ForumHandler) ForumGetUsers(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		err := errors.New("нет идентификатора")
 		log.Println(err)
-		models.ResponseError(err.Error(), 404, w)
+		models.ResponseError(err.Error(), 404, w, r)
 		return
 	}
 
@@ -119,7 +119,7 @@ func (a *ForumHandler) ForumGetUsers(w http.ResponseWriter, r *http.Request) {
 		limitInt, err = strconv.Atoi(limit[0])
 		if err != nil {
 			log.Println(err)
-			models.ResponseError(err.Error(), 404, w)
+			models.ResponseError(err.Error(), 404, w, r)
 		}
 	}
 
@@ -139,7 +139,7 @@ func (a *ForumHandler) ForumGetUsers(w http.ResponseWriter, r *http.Request) {
 	res, status, err := a.Usecase.ForumGetUsers(slug, limitInt, descBool, since[0])
 	if err != nil {
 		log.Println(err)
-		models.ResponseError(err.Error(), status, w)
+		models.ResponseError(err.Error(), status, w, r)
 		return
 	}
 
