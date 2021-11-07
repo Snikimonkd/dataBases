@@ -22,6 +22,10 @@ import (
 	thread_repository "github.com/Snikimonkd/dataBases/internal/thread/repository"
 	thread_usecase "github.com/Snikimonkd/dataBases/internal/thread/usecase"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
+	"github.com/Snikimonkd/dataBases/internal/utils/metrics"
+
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -38,6 +42,11 @@ type Routes []Route
 
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
+
+	metrics.New()
+
+	router.Handle("/metrics", promhttp.Handler()).Methods("GET")
+
 	for _, route := range routes {
 		var handler http.Handler
 		handler = route.HandlerFunc
@@ -58,7 +67,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func getPostgres() *sql.DB {
-	dsn := "host=localhost user=docker password=docker dbname=docker sslmode=disable"
+	dsn := "host=92.53.103.179 user=snikimonk password=g0ytltkmybr dbname=my_db sslmode=disable"
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
 		panic("cant parse config" + err.Error())
