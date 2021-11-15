@@ -11,10 +11,6 @@ import (
 )
 
 func MetricFunc(code int, r *http.Request, err error) {
-	if code >= 500 {
-		metrics.CreateRequestErrors(r, err)
-		return
-	}
 	metrics.CreateRequestHits(code, r)
 }
 
